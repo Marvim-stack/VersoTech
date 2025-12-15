@@ -24,6 +24,7 @@ O objetivo é demonstrar a **padronização, tratamento e sincronização de dad
 
 ## 📂 Estrutura do Projeto
 
+```
 backend/
 ├── app/
 ├── routes/
@@ -33,75 +34,95 @@ backend/
 └── .env.example
 
 database/sql/
-├── 01_base.sql -- Tabelas base + dados de origem
-├── 03_views.sql -- Views de tratamento/padronização
-└── 05_sync.sql -- Tabelas finais + sincronização
-
-yaml
-Copiar código
+├── 01_base.sql      # Tabelas base + dados de origem
+├── 03_views.sql     # Views de tratamento e padronização
+└── 05_sync.sql      # Tabelas finais + sincronização
+```
 
 ---
 
 ## 🗄️ Banco de Dados (PostgreSQL)
 
 ### 1️⃣ Criar o banco
+
 ```sql
 CREATE DATABASE implantador;
-2️⃣ Executar os scripts SQL (na ordem)
-No pgAdmin ou psql:
+```
 
-sql
-Copiar código
+### 2️⃣ Executar os scripts SQL (na ordem)
+
+```sql
 01_base.sql
 03_views.sql
 05_sync.sql
-⚙️ Backend (Laravel)
-Requisitos
-PHP 8+
+```
 
-Composer
+---
 
-PostgreSQL
+## ⚙️ Backend (Laravel)
 
-Instalação
-bash
-Copiar código
+### Requisitos
+
+- PHP 8+
+- Composer
+- PostgreSQL
+
+### Instalação
+
+```bash
 cd backend
 composer install
 copy .env.example .env
 php artisan key:generate
 php artisan serve
+```
+
 Servidor disponível em:
 
-cpp
-Copiar código
+```
 http://127.0.0.1:8000
-🔌 Rotas da API
-🔁 Sincronizar produtos
-bash
-Copiar código
+```
+
+---
+
+## 🔌 Rotas da API
+
+### 🔁 Sincronizar produtos
+```
 POST /api/sincronizar/produtos
-🔁 Sincronizar preços
-bash
-Copiar código
+```
+
+### 🔁 Sincronizar preços
+```
 POST /api/sincronizar/precos
-📦 Listar produtos + preços
-bash
-Copiar código
+```
+
+### 📦 Listar produtos + preços
+```
 GET /api/produtos/lista
-🧪 Validação no Banco
-sql
-Copiar código
+```
+
+---
+
+## 🧪 Validação no Banco
+
+```sql
 SELECT COUNT(*) FROM produto_insercao;
 SELECT COUNT(*) FROM preco_insercao;
 
-SELECT p.prod_cod, p.prod_nome, pr.prc_valor
+SELECT
+  p.prod_cod,
+  p.prod_nome,
+  pr.prc_valor
 FROM produto_insercao p
 LEFT JOIN preco_insercao pr
   ON pr.prc_cod_prod = p.prod_cod;
-🔐 Segurança
-.env não é versionado
+```
 
-Dependências (vendor/) não são versionadas
+---
 
-Nenhuma credencial sensível no repositório
+## 🔐 Segurança
+
+- O arquivo `.env` não é versionado
+- Dependências (`vendor/`) não são versionadas
+- Nenhuma credencial sensível é exposta no repositório
