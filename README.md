@@ -6,7 +6,7 @@ O objetivo é demonstrar a **padronização, tratamento e sincronização de dad
 
 ---
 
-## 🧱 Arquitetura da Solução
+##  Arquitetura da Solução
 
 - **PostgreSQL**
   - Armazena dados brutos
@@ -18,11 +18,11 @@ O objetivo é demonstrar a **padronização, tratamento e sincronização de dad
   - Expõe API REST
   - Interface simples para acionamento manual
 
-📌 Toda a regra de negócio de dados fica concentrada no **banco**, simulando um cenário real de implantação e integração entre sistemas.
+ Toda a regra de negócio de dados fica concentrada no **banco**, simulando um cenário real de implantação e integração entre sistemas.
 
 ---
 
-## 📂 Estrutura do Projeto
+##  Estrutura do Projeto
 
 ```
 backend/
@@ -41,15 +41,15 @@ database/sql/
 
 ---
 
-## 🗄️ Banco de Dados (PostgreSQL)
+## Banco de Dados (PostgreSQL)
 
-### 1️⃣ Criar o banco
+### 1 Criar o banco
 
 ```sql
 CREATE DATABASE implantador;
 ```
 
-### 2️⃣ Executar os scripts SQL (na ordem)
+### 2 Executar os scripts SQL (na ordem)
 
 ```sql
 01_base.sql
@@ -59,7 +59,7 @@ CREATE DATABASE implantador;
 
 ---
 
-## ⚙️ Backend (Laravel)
+##  Backend (Laravel)
 
 ### Requisitos
 
@@ -85,26 +85,26 @@ http://127.0.0.1:8000
 
 ---
 
-## 🔌 Rotas da API
+##  Rotas da API
 
-### 🔁 Sincronizar produtos
+###  Sincronizar produtos
 ```
 POST /api/sincronizar/produtos
 ```
 
-### 🔁 Sincronizar preços
+###  Sincronizar preços
 ```
 POST /api/sincronizar/precos
 ```
 
-### 📦 Listar produtos + preços
+###  Listar produtos + preços
 ```
 GET /api/produtos/lista
 ```
 
 ---
 
-## 🧪 Validação no Banco
+##  Validação no Banco
 
 ```sql
 SELECT COUNT(*) FROM produto_insercao;
@@ -121,7 +121,7 @@ LEFT JOIN preco_insercao pr
 
 ---
 
-## 🔐 Segurança
+##  Segurança
 
 - O arquivo `.env` não é versionado
 - Dependências (`vendor/`) não são versionadas
