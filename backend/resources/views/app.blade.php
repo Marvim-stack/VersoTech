@@ -1,33 +1,136 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>VersoTech - Teste Técnico</title>
+    <meta charset="UTF-8">
+    <title>VersoTech – Sincronização</title>
+
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 </head>
-<body style="font-family: Arial; padding: 20px;">
-  <h2>Sincronização</h2>
+<body>
 
-  <button onclick="sync('/api/sincronizar/produtos')">Sincronizar Produtos</button>
-  <button onclick="sync('/api/sincronizar/precos')">Sincronizar Preços</button>
+<div class="container">
 
-  <h2>Produtos + Preços</h2>
-  <pre id="out" style="background:#f5f5f5; padding:10px; white-space:pre-wrap;"></pre>
+    <h1>VersoTech – Sincronização de Dados</h1>
 
-  <script>
-    async function sync(url) {
-      document.getElementById('out').textContent = 'Sincronizando...';
-      await fetch(url, { method: 'POST' });
-      await load();
+    <div class="actions">
+        <button onclick="syncProdutos()">Sincronizar Produtos</button>
+        <button onclick="syncPrecos()">Sincronizar Preços</button>
+    </div>
+
+    <div id="status" class="status info">Pronto.</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Produto</th>
+                <th>Preço</th>
+            </tr>
+        </thead>
+        <tbody id="tabela">
+            <tr>
+                <td colspan="3">Carregando...</td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const statusEl = document.getElementById('status');
+    const tbody = document.getElementById('tabela');
+
+    function setStatus(msg, type = 'info') {
+        if (!statusEl) return;
+        statusEl.textContent = msg;
+        statusEl.className = 'status ' + type;
     }
 
-    async function load() {
-      const res = await fetch('/api/produtos/lista');
-      const data = await res.json();
-      document.getElementById('out').textContent = JSON.stringify(data, null, 2);
+    async function request(url, method = 'GET') {
+        const res = await fetch(url, {
+            method,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const text = await res.text();
+        let body;
+        try {
+            body = JSON.parse(text);
+        } catch {
+            body = { message: text };
+        }
+
+        if (!res.ok) {
+            throw new Error(`${res.status} - ${body.message || 'Erro desconhecido'}`);
+        }
+
+        return body;
     }
 
-    load();
-  </script>
+    async function carregar() {
+        try {
+            setStatus('Carregando lista...', 'loading');
+            const dados = await request('/api/produtos/lista', 'GET');
+
+            tbody.innerHTML = '';
+
+            if (!Array.isArray(dados) || dados.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3">Nenhum dado encontrado.</td></tr>`;
+                setStatus('Lista carregada (vazia).', 'info');
+                return;
+            }
+
+            dados.forEach(p => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${p.prod_cod ?? '-'}</td>
+                        <td>${p.prod_nome ?? '-'}</td>
+                        <td>${p.prc_valor ?? '-'}</td>
+                    </tr>
+                `;
+            });
+
+            setStatus(`Lista carregada ✅ (${dados.length} itens)`, 'success');
+
+        } catch (e) {
+            setStatus('Erro ao carregar lista: ' + e.message, 'error');
+        }
+    }
+
+    async function syncProdutos() {
+        try {
+            setStatus('Sincronizando produtos...', 'loading');
+            await request('/api/sincronizar/produtos', 'POST');
+            setStatus('Produtos sincronizados com sucesso ✅', 'success');
+            await carregar();
+        } catch (e) {
+            setStatus('Erro ao sincronizar produtos: ' + e.message, 'error');
+        }
+    }
+
+    async function syncPrecos() {
+        try {
+            setStatus('Sincronizando preços...', 'loading');
+            await request('/api/sincronizar/precos', 'POST');
+            setStatus('Preços sincronizados com sucesso ✅', 'success');
+            await carregar();
+        } catch (e) {
+            setStatus('Erro ao sincronizar preços: ' + e.message, 'error');
+        }
+    }
+
+
+    window.syncProdutos = syncProdutos;
+    window.syncPrecos = syncPrecos;
+
+    carregar();
+});
+</script>
+
 </body>
 </html>
